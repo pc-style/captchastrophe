@@ -1,0 +1,14 @@
+{
+  "id": "pay-ten-dollars",
+  "title": "Pay $10 to be human",
+  "description": "Prove your humanity by surviving a checkout with ten imaginary dollars, an inconvenience fee, and an upgrade nobody asked for. Play money only. Real charge: $0.",
+  "author": { "github": "mgamergo" },
+  "entry": "entry.ts",
+  "capabilities": [],
+  "concept": {
+    "action": "Negotiate who pays a checkout fee, then authorize ten dollars in play money.",
+    "sequence": "Choose a fee payer, try to fit the imaginary wallet, consider Premium Human, review the receipt, and authorize the imaginary payment.",
+    "difficulty": "The proof consumes your entire imaginary wallet. Fees and premium humanity put you over budget, so you must negotiate and remove extras.",
+    "success": "Authorize a reviewed total of exactly 1,000 imaginary cents. A receipt proves humanity through checkout suffering. No real payment occurs."
+  }
+}
