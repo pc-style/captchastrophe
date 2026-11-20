@@ -1,0 +1,15 @@
+{
+  "id": "prove-youre-not-pcstyle",
+  "title": "Prove You’re Not pcstyle",
+  "description": "Select every square containing a good CAPTCHA. If the verifier disagrees, you'll have to correct the record.",
+  "author": { "github": "mynameistito" },
+  "entry": "entry.js",
+  "capabilities": [],
+  "layout": { "minHeight": 560 },
+  "concept": {
+    "action": "Select every square containing a good CAPTCHA from a three-by-three grid of blank tiles.",
+    "sequence": "Submit the empty selection, dispute the rejection, then correct the verifier's prefilled appeal grid.",
+    "difficulty": "The correct first answer is rejected. The appeal selects all nine empty squares on your behalf, and you must clear them individually.",
+    "success": "File an appeal with all nine squares unselected."
+  }
+}
