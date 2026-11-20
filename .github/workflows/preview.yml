@@ -37,9 +37,14 @@ jobs:
         run: |
           if [ -n "$INPUT_PR" ]; then echo "number=$INPUT_PR" >> "$GITHUB_OUTPUT"; exit 0; fi
           # Review-triggered runs report the base repo as head_repository, so match fork PRs by commit.
-          number=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls?state=open&per_page=100" \
-            | jq -r --arg sha "$SHA" --arg ref "$BRANCH" '.[] | select(.head.sha == $sha and .head.ref == $ref) | .number' | head -n 1)
-          if [ -z "$number" ]; then echo "No open PR has head $SHA; nothing to preview."; exit 0; fi
+          matches=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls?state=open&per_page=100" \
+            | jq -r --arg sha "$SHA" --arg ref "$BRANCH" '.[] | select(.head.sha == $sha and .head.ref == $ref) | .number')
+          if [ -z "$matches" ]; then echo "No open PR has head $SHA; nothing to preview."; exit 0; fi
+          if [ "$(printf '%s\n' "$matches" | wc -l)" != 1 ]; then
+            echo "Several open PRs have head $SHA on $BRANCH; dispatch the preview by PR number instead."
+            exit 0
+          fi
+          number=$matches
           files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$number/files?per_page=100" --jq '.[].filename')
           ids=$(printf '%s\n' "$files" | sed -nE 's#^submissions/([a-z0-9]+(-[a-z0-9]+)*)/.*#\1#p' | sort -u)
           if printf '%s\n' "$files" | grep -qvE '^submissions/' || [ "$(printf '%s\n' "$ids" | grep -c .)" != 1 ]; then
