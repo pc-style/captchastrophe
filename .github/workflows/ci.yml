@@ -21,6 +21,7 @@ jobs:
       # A step, not a job condition: a skipped `checks` job would satisfy the required check.
       - name: Require CodeRabbit approval of the current head
         if: github.event_name == 'pull_request_review'
+        shell: bash # adds pipefail, so a failed page fetch can't hide behind `tail`
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
