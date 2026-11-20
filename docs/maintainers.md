@@ -10,7 +10,7 @@
 - Gallery: https://captchastrophe.pcstyle.dev on static Worker `captchastrophe`. The old https://captchastrophe-site.pcstyle.workers.dev is a redirect-only static Worker (308, preserving path/query; browser preserves entry hash). Custom-domain HTTPS, real iframe launch/Exit, cross-origin parent isolation and sign-in initiation checked. Local DNS had a cached negative result; public Cloudflare DNS and authoritative DNS resolve correctly. No fork preview is deployed.
 - Scoped Cloudflare publishing credentials are stored in both GitHub environments; the broad local OAuth credentials are not copied to CI. Workers account had 41 Workers before this gallery. `HOSTING_ENABLED=true`; Bun CI and production publishing passed on `a9c9958`; `VOTING_ENABLED=true` following the production login test.
 - Private vulnerability reporting enabled. Default Actions token is read-only; Actions cannot approve PRs.
-- GitHub settings applied and read back: active main ruleset requiring `checks`, one approving review and CODEOWNERS; no force pushes/deletion. Admin bypass retained for bootstrap/emergencies. `preview` requires pc-style approval; preview/production only deploy from main. Ten labels created. Setup is reproducible through `.github/scripts/setup-repo.ts`.
+- GitHub settings applied and read back: active main ruleset requiring `checks`, one approving review and CODEOWNERS; no force pushes/deletion. Admin bypass retained for bootstrap/emergencies. `preview` has no required reviewer: it publishes automatically after CodeRabbit approval and green CI. Preview/production only deploy from main. Ten labels created. Setup is reproducible through `.github/scripts/setup-repo.ts`.
 
 ## Shape
 

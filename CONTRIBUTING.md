@@ -21,6 +21,6 @@ bun run build
 
 Use Node 24. No npx. Bunx is allowed. TS and plain JS both work; the shell doesn't pick your interaction framework for you.
 
-CI is deterministic and doesn't need a paid AI service. AI review, if present, is advisory. A human accepts entries. An absent review isn't approval.
+PR CI starts when CodeRabbit approves the current head commit. Until then `checks` stays pending or shows "Waiting for CodeRabbit". After you push fixes, wait for CodeRabbit to review the new commit; comment `@coderabbitai review` if it doesn't. CodeRabbit's approval only unlocks CI. A human accepts entries.
 
-Fork preview publishing uses a maintainer-triggered Actions workflow plus the protected `preview` environment. It validates the current successful CI artifact and publishes only static assets. Hosting access must be configured first; a passing build is not a hosted preview. Never post a fake preview link.
+Once CI passes, single-entry PRs get a fork preview automatically. A maintainer can also trigger the same workflow by hand. It checks for CodeRabbit approval, validates the current successful CI artifact and publishes only static assets. Hosting access must be configured first; a passing build is not a hosted preview. Never post a fake preview link.

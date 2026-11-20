@@ -9,7 +9,8 @@ function api(method:string,path:string,body?:unknown){
 }
 api('PUT','private-vulnerability-reporting');
 api('PUT','actions/permissions/workflow',{default_workflow_permissions:'read',can_approve_pull_request_reviews:false});
-api('PUT','environments/preview',{wait_timer:0,prevent_self_review:false,reviewers:[{type:'User',id:134572227}],deployment_branch_policy:{protected_branches:false,custom_branch_policies:true}});
+// No required reviewer: previews publish automatically after CodeRabbit approval and green CI.
+api('PUT','environments/preview',{wait_timer:0,prevent_self_review:false,reviewers:[],deployment_branch_policy:{protected_branches:false,custom_branch_policies:true}});
 api('PUT','environments/production',{wait_timer:0,deployment_branch_policy:{protected_branches:false,custom_branch_policies:true}});
 for(const env of ['preview','production']){
   const policies=api('GET',`environments/${env}/deployment-branch-policies`).branch_policies;

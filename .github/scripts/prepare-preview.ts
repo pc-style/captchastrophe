@@ -21,8 +21,12 @@ const blob=api(`repos/${pr.head.repo.full_name}/contents/submissions/${id}/manif
 if(blob.type!=='file'||blob.size>10000)throw new Error('Invalid manifest');
 const manifest=manifestSchema.parse(JSON.parse(Buffer.from(blob.content,'base64').toString('utf8')));
 if(manifest.id!==id)throw new Error('ID mismatch');
-const runs=api(`repos/${repo}/actions/workflows/ci.yml/runs?event=pull_request&head_sha=${pr.head.sha}&per_page=100`).workflow_runs;
-const run=runs.find((r:any)=>r.head_sha===pr.head.sha&&r.head_repository.id===pr.head.repo.id&&r.conclusion==='success'&&r.event==='pull_request');
+const reviews=[];
+for(let page=1;;page++){const batch=api(`repos/${repo}/pulls/${number}/reviews?per_page=100&page=${page}`);reviews.push(...batch);if(batch.length<100)break;if(page>=30)throw new Error('Too many reviews');}
+const verdict=reviews.filter((r:any)=>r.user?.login==='coderabbitai[bot]'&&r.commit_id===pr.head.sha&&r.state!=='COMMENTED').at(-1);
+if(verdict?.state!=='APPROVED')throw new Error('CodeRabbit has not approved the current head');
+const runs=api(`repos/${repo}/actions/workflows/ci.yml/runs?event=pull_request_review&head_sha=${pr.head.sha}&per_page=100`).workflow_runs;
+const run=runs.find((r:any)=>r.head_sha===pr.head.sha&&r.head_repository.id===pr.head.repo.id&&r.conclusion==='success'&&r.event==='pull_request_review');
 if(!run)throw new Error('No successful CI run for the current fork head');
 const artifacts=api(`repos/${repo}/actions/runs/${run.id}/artifacts`).artifacts;
 const artifact=artifacts.find((a:any)=>a.name===`static-${run.id}`&&!a.expired);

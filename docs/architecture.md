@@ -40,8 +40,8 @@ Top is the 95% Wilson lower bound. Trending uses active votes first cast in the 
 
 ## Pipeline
 
-`CI`: public fork code, read-only token, no secrets, no caches. Validate/typecheck/test/build and upload static play assets.
+`CI`: public fork code, read-only token, no secrets, no caches. On PRs it runs on review submission and first requires CodeRabbit's latest verdict on the head commit to be an approval. The gate fails rather than skips, because a skipped `checks` job would satisfy the required check. Validate/typecheck/test/build and upload static play assets.
 
-`Publish authorized fork preview`: maintainer dispatch plus protected preview environment; checkout only main, verify PR contains one entry and no infrastructure changes, find successful CI for its current head/repository, download that artifact by ID, validate paths/types/sizes/no symlinks/no hosting config. Build the gallery from main with auth disabled. Upload only static assets and comment a commit-specific preview link. Never execute artifact code in a privileged job.
+`Publish authorized fork preview`: runs automatically from main after a successful CodeRabbit-gated CI run, or by maintainer dispatch. An unprivileged job finds the open single-entry PR for that head. Then, in the preview environment, it checks out only main, verifies the PR contains one entry and no infrastructure changes, verifies CodeRabbit approved the current head, finds successful CI for its current head/repository, downloads that artifact by ID and validates paths/types/sizes/no symlinks/no hosting config. Build the gallery from main with auth disabled. Upload only static assets and comment a commit-specific preview link. Never execute artifact code in a privileged job.
 
 `Deploy production`: reviewed main build, credentials supplied only to the publish step. `Refresh pre-review metadata`: twice hourly, gallery-only build. `Clean closed previews`: nightly, removes only names matching the preview convention for closed PRs. All publishing stays disabled until hosting is configured.
