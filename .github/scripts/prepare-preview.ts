@@ -26,7 +26,8 @@ for(let page=1;;page++){const batch=api(`repos/${repo}/pulls/${number}/reviews?p
 const verdict=reviews.filter((r:any)=>r.user?.login==='coderabbitai[bot]'&&r.commit_id===pr.head.sha&&r.state!=='COMMENTED').at(-1);
 if(verdict?.state!=='APPROVED')throw new Error('CodeRabbit has not approved the current head');
 const runs=api(`repos/${repo}/actions/workflows/ci.yml/runs?event=pull_request_review&head_sha=${pr.head.sha}&per_page=100`).workflow_runs;
-const run=runs.find((r:any)=>r.head_sha===pr.head.sha&&r.head_repository.id===pr.head.repo.id&&r.conclusion==='success'&&r.event==='pull_request_review');
+// Review-triggered runs report the base repo as head_repository, even for forks; the commit SHA identifies the build.
+const run=runs.find((r:any)=>r.head_sha===pr.head.sha&&r.head_branch===pr.head.ref&&r.conclusion==='success'&&r.event==='pull_request_review');
 if(!run)throw new Error('No successful CI run for the current fork head');
 const artifacts=api(`repos/${repo}/actions/runs/${run.id}/artifacts`).artifacts;
 const artifact=artifacts.find((a:any)=>a.name===`static-${run.id}`&&!a.expired);

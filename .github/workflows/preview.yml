@@ -29,17 +29,23 @@ jobs:
     steps:
       - name: Find the open entry-only PR for this CI run
         id: pr
+        shell: bash # adds pipefail, so a failed PR listing fails the step instead of reading as "no match"
         env:
           GH_TOKEN: ${{ github.token }}
           INPUT_PR: ${{ inputs.pr }}
-          OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
           BRANCH: ${{ github.event.workflow_run.head_branch }}
           SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           if [ -n "$INPUT_PR" ]; then echo "number=$INPUT_PR" >> "$GITHUB_OUTPUT"; exit 0; fi
-          number=$(gh api --method GET "repos/$GITHUB_REPOSITORY/pulls" -f state=open -f head="$OWNER:$BRANCH" \
-            --jq "map(select(.head.sha == \"$SHA\")) | .[0].number // empty")
-          if [ -z "$number" ]; then echo "No open PR has head $SHA; nothing to preview."; exit 0; fi
+          # Review-triggered runs report the base repo as head_repository, so match fork PRs by commit.
+          matches=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls?state=open&per_page=100" \
+            | jq -r --arg sha "$SHA" --arg ref "$BRANCH" '.[] | select(.head.sha == $sha and .head.ref == $ref) | .number')
+          if [ -z "$matches" ]; then echo "No open PR has head $SHA; nothing to preview."; exit 0; fi
+          if [ "$(printf '%s\n' "$matches" | wc -l)" != 1 ]; then
+            echo "Several open PRs have head $SHA on $BRANCH; dispatch the preview by PR number instead."
+            exit 0
+          fi
+          number=$matches
           files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$number/files?per_page=100" --jq '.[].filename')
           ids=$(printf '%s\n' "$files" | sed -nE 's#^submissions/([a-z0-9]+(-[a-z0-9]+)*)/.*#\1#p' | sort -u)
           if printf '%s\n' "$files" | grep -qvE '^submissions/' || [ "$(printf '%s\n' "$ids" | grep -c .)" != 1 ]; then
