@@ -2,7 +2,8 @@ name: CI
 on:
   # PR checks start only once CodeRabbit approves the current head; see the gate step.
   pull_request_review:
-    types: [submitted]
+    # dismissed: re-run the gate so a dismissed CodeRabbit approval turns `checks` red.
+    types: [submitted, dismissed]
   push:
     branches: [main]
 permissions: {}
